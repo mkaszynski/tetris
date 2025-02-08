@@ -73,11 +73,14 @@ elif jl == 'h':
             ]
 
 else:
+    # Default to four squares per piece
+    square_tetra = [[0, 0, 0, 0], [30, 0, 30, 0], [0, 30, 0, 30], [30, 30, 30, 30]]
+
     pblocks = [
-                [[0, 0, 0, 0], [0, 30, 0, 30], [30, 30, 30, 30], [30, 60, 30, 60]], 
+                [[0, 0, 0, 0], [0, 30, 0, 30], [30, 30, 30, 30], [30, 60, 30, 60]],
                 [[0, 0, 0, 0], [0, 30, 0, -30], [-30, 30, -30, 30], [-30, 60, -30, 60]], 
-                [[0, 0, 0, 0], [30, 0, 30, 0], [0, 30, 0, 30], [30, 30, 30, 30]], 
-                [[0, 0, 0, 0], [30, 0, 30, 0], [0, 30, 0, 30], [30, 30, 30, 30]], 
+                square_tetra,
+                square_tetra,
                 [[0, 0, 0, 0], [30, 0, 30, 0], [60, 0, 60, 0], [60, 30, 60, 30]], 
                 [[0, 0, 0, 0], [-30, 0, -30, 0], [-60, 0, -60, 0], [-60, 30, -60, 30]], 
                 [[0, 0, 0, 0], [30, 0, 30, 0], [60, 0, 60, 0], [90, 0, 90, 0]], 
@@ -90,6 +93,7 @@ else:
 
 
 nblock = random.choice(pblocks)
+no_rotate = False
 
 # cblocks = random.choice(pblocks)
 cblocks = []
@@ -134,17 +138,18 @@ while running:
         if keys[pygame.K_a]:
             for i in cblocks:
                 i[0] -= 30
-    
-        if keys[pygame.K_e]:
+
+        # Rotate block
+        if keys[pygame.K_e] and not no_rotate:
             b = -1
             c = 1
             for i in cblocks:
-                u = cblocks[0]
+                u = cblocks[1]  # axis of rotation
                 n = i[0] - u[0]
                 m = i[1] - u[1]
                 i[0] = m*b + u[0]
                 i[1] = n*c + u[1]
-        if keys[pygame.K_r]:
+        if keys[pygame.K_r] and not no_rotate:
             b = 1
             c = -1
             for i in cblocks:
@@ -173,10 +178,13 @@ while running:
             running = False
     
     if not cblocks:
-        y = nblock
+        # update the current and next block
+        tmp_block = nblock
         nblock = random.choice(pblocks)
-        for i in y:
-            cblocks.append([i[0] + 300, i[1], i[0] + 300, i[1]])
+        no_rotate = tmp_block is square_tetra
+        
+        for square in tmp_block:
+            cblocks.append([square[0] + 300, square[1], square[0] + 300, square[1]])
         color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
     
     
@@ -193,6 +201,7 @@ while running:
     
     j = False
     
+    # Freeze a block when it collides with another block
     for i in cblocks:
         for j in blocks:
             if i[0] == j[0]:
@@ -202,13 +211,16 @@ while running:
                         i[1] = i[3]
                         blocks.append([i[0], i[1], color])
                     cblocks = []
-    
+
+    # Clearing lines
     for i in range(20):
+        # Check number of blocks in a row
         h = []
         for j in blocks:
             if j[1] == i*30:
                 h.append(j)
-        
+
+        # If blocks in a row is 10 or more, clear it
         if len(h) >= 10:
             for i in h:
                 blocks.remove(i)
@@ -216,7 +228,9 @@ while running:
                 if l[1] < h[0][1]:
                     l[1] += 30
             points += 1
-    
+            pygame.time.delay(100)
+
+    # Check for edge collisions
     for i in cblocks:
         if i[0] < 150:
             for i in cblocks:

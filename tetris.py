@@ -24,6 +24,8 @@ blocks = []
 
 jl = input('would you like to play easy, normal, or hard? [e/n/h]').lower()
 
+square_tetra = [[0, 0, 0, 0], [30, 0, 30, 0], [0, 30, 0, 30], [30, 30, 30, 30]]
+
 if jl == 'e':
     pblocks = [
             [[0, 0, 0, 0], [30, 0, 30, 0], [60, 0, 60, 0]], 
@@ -111,6 +113,8 @@ r = 0
 
 pressed = False
 
+moved = False
+
 # Run until the user asks to quit
 running = True
 while running:
@@ -135,9 +139,11 @@ while running:
         if keys[pygame.K_d]:
             for i in cblocks:
                 i[0] += 30
+            moved = True
         if keys[pygame.K_a]:
             for i in cblocks:
                 i[0] -= 30
+            moved = True
 
         # Rotate block
         if keys[pygame.K_e] and not no_rotate:
@@ -149,6 +155,7 @@ while running:
                 m = i[1] - u[1]
                 i[0] = m*b + u[0]
                 i[1] = n*c + u[1]
+            moved = True
         if keys[pygame.K_r] and not no_rotate:
             b = 1
             c = -1
@@ -158,6 +165,7 @@ while running:
                 m = i[1] - u[1]
                 i[0] = m*b + u[0]
                 i[1] = n*c + u[1]
+            moved = True
     
     if keys[pygame.K_d] or keys[pygame.K_a] or keys[pygame.K_r] or keys[pygame.K_e]:
         pressed = True
@@ -209,8 +217,10 @@ while running:
                     for i in cblocks:
                         i[0] = i[2]
                         i[1] = i[3]
-                        blocks.append([i[0], i[1], color])
-                    cblocks = []
+                        if not moved:
+                            blocks.append([i[0], i[1], color])
+                    if not moved:
+                        cblocks = []
 
     # Clearing lines
     for i in range(20):
@@ -266,6 +276,8 @@ while running:
     for i in cblocks:
         i[2] = i[0]
         i[3] = i[1]
+    
+    moved = False
     
     time.sleep(1/(points*3 + 30))
 

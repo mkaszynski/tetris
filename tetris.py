@@ -4,7 +4,7 @@ import random
 pygame.init()
 pygame.mixer.init()
 
-music = pygame.mixer.Sound('tetres.wav')
+music = pygame.mixer.Sound('tetris.wav')
 
 # Set up the drawing window
 screen = pygame.display.set_mode([600, 600])

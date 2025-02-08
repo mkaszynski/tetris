@@ -115,6 +115,8 @@ pressed = False
 
 moved = False
 
+level = 1
+
 # Run until the user asks to quit
 running = True
 while running:
@@ -205,6 +207,7 @@ while running:
                 i[1] = i[3]
                 blocks.append([i[0], i[1], color])
             cblocks = []
+            points += len(pblocks)
     
     
     j = False
@@ -221,7 +224,11 @@ while running:
                             blocks.append([i[0], i[1], color])
                     if not moved:
                         cblocks = []
-
+                        points += len(pblocks)
+    
+    
+    cleared_lines = 0
+    
     # Clearing lines
     for i in range(20):
         # Check number of blocks in a row
@@ -232,13 +239,19 @@ while running:
 
         # If blocks in a row is 10 or more, clear it
         if len(h) >= 10:
+            cleared_lines += 1
             for i in h:
                 blocks.remove(i)
             for l in blocks:
                 if l[1] < h[0][1]:
                     l[1] += 30
-            points += 1
             pygame.time.delay(100)
+            level += 1
+    
+    
+    points += cleared_lines*(1 + cleared_lines)/2*level*10*len(pblocks)
+    
+    points = int(points)
 
     # Check for edge collisions
     for i in cblocks:
@@ -272,6 +285,7 @@ while running:
         pygame.draw.rect(screen, (200, 200, 200), map1)
     
     add_line(screen, f'points: {points}', 0, 0)
+    add_line(screen, f'level {level}', 0, 30)
     
     for i in cblocks:
         i[2] = i[0]
@@ -279,7 +293,7 @@ while running:
     
     moved = False
     
-    time.sleep(1/(points*3 + 30))
+    time.sleep(1/(level*3 + 30))
 
     # Flip the display
     pygame.display.flip()
